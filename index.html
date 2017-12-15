@@ -34,75 +34,114 @@
         <ul>
             <li>
                 <h3>Navier-Stokes</h3>
-
+		<p>The Navier-Stokes equations are used to describe the motion of fluids. 
+            </li>
+            <li>
+                <h3>Signed Distance</h3>
+		<p></p>
+            </li>   
+            <li>
+                <h3>Implicit Surface</h3>
+		<p>Marching Cubes is an algorithm</p>
             </li>
             <li>
                 <h3>Marching Cubes</h3>
-
+		<p>Marching Cubes is an algorithm to extract a mesh from a scalar field. For the purposes of my fluid simulation, the algorithm is used to create the solid's surface from the signed distance field.</p>  
             </li>
         </ul>
 
 
         <h2>Results</h2>
+
+<h3>Part 1: Basic Fluid Simulation</h3>
+As mentioned in the description, you can model a solid melting by representing it as a highly viscous solid. 
         <video class="video" controls>
             <source src="video/velocity_field" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
+<h3>Part 2: Making Smoke</h3>
+Creating smoke wasn't necessarily required to reach my goals, but I considered a good milestone. By simulating smoke, I received assurance that my fluid sim was mostly correct. 
         <video class="video" controls>
             <source src="video/smoke" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
+<h3>Part 3: Creating a Surface</h3>
         <video class="video" controls>
             <source src="video/marching_cubes" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
 
+<h3>Part 4: "Melting"</h3>
+<p> To simulate heat, I created a simple heat boundary that expands in a uniform radius over time.
+</p>
         <video class="video" controls>
             <source src="video/heat" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
         
-        <table>
+<h4>Challenges</h4>
+<p>Besides the ordinary physics and OpenGL errors, I had some other issues that I consider noteworthy</p>
+<p>The main issue that remains unsolved is volume loss. I initially believed this to a result of incorrect boundary conditions, so I spent a large amount of time tinkering with different conditions. My first attempt was based off of an intuitive understanding of liquids at a box. When a liquid moves horizontally towards a wall, the horizontal velocity is reversed (from hitting the wall) and the vertical velocity remains unchanged (so that it can move up the wall). This had very noticeable volume loss. My next attempt involved always reversing velocities, but this didn't resolve the issue. And then the result that appeared most correct was setting 0 velocity at the boundaries, but volume loss continued to be extreme.</p>
+
+<p> The videos below show 3 different attempts at fixing boundary conditions.
+        <table class="video-table">
             <tr>
                 <td align="left" valign="top">
                     <video class="videoRow" controls>a
                         <source src="video/boundary_maximal" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
-                <span style="display: block">Strict Boundaries</span>
+                <span style="display: block;text-align: center;">Sometimes Reverse Velocities</span>
                 </td>
                 <td align="left" valign="top">
                     <video class="videoRow" controls>a
                         <source src="video/boundary_minimal" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
-                <span style="display: block">Minimal Boundaries</span>
+                <span style="display: block;text-align: center;">Always Reverse Velocities</span>
                 </td>
                 <td align="left" valign="top">
                     <video class="videoRow" controls>a
                         <source src="video/boundary_zero" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
-                    <span style="display: block">Zero Boundaries</span>
+                    <span style="display: block;text-align: center;">Zero-Velocity Boundaries</span>
                 </td>
             </tr>
         </table>
+<p>As you can see, different boundary conditions have varying effects on volume loss, but the issue clearly cannot be solved by improving the boundaries this way. Source of the issue is likely a result of using signed distance to keep track of surface. A signed distance field keeps no track of the solid's volume. And even if you do keep track of the volume, correcting the error is quite difficult. Furthermore, when you advect signed distances, you destroy the inherent property that the distance represents the closest distance to the surface. Therefore, everytime you advect, you will need to redistance the field. In my code, I did not implement anything to correct these issues due to time constraints.</p>
 
+<p>On top of advecting the signed distance, numerical error also likely contributed to volume loss. In the simulation the acceleration from gravity will always be a constant -9.81. However, the acceleration due to pressure suffers from numerical innacuraccy. This is because an iterative linear solver is used to approximate the pressure. Therefore, at each timestep this error may result in gravity dominating the acceleration from pressure and thus causing volume loss. This effect is illustrated in the image below. 
+</p>
+<center>
+<img src="gravity_pressure.png" class="video-table" max-width="180" >
+</center>
+<p>Another issue is the lack of dripping when the solid melts. This seems to be a result of my naive heat model as well as volume loss. Had I correctly modeled heat diffusion, heat would travel (like a fluid) through the material, which I believe would solve the problem where the solid justs moves to the right rather than drips down. 
+</p>
     </main>
 
     <aside role="complementary">
         <h3>References</h3>
         <ol>
+          <li> <i>FLUID SIMULATION SIGGRAPH 2007 Course Notes</i>, Bridson, Muller-Fischer
+               <a href="https://www.cs.ubc.ca/~rbridson/fluidsimulation/fluids_notes.pdf">Fluids Notes</a>.   
+          </li>
+          <li> <i>Real-Time Fluid Dynamics for Games</i>, Jos Stam
+               <a href="http://www.intpowertechcorp.com/GDC03.pdf">Fluid Dynamics for Games</a>.   
+          </li>
           <li> <i>Fast Fluid Dynamics Simulation on the GPU</i>, Mark J. Harris
                <a href="http://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html">GPU Gems</a>.   
           </li>
-          <li> <i>Fast Ray-Box Intersection</i>, A. Wu
-               <a href="http://tog.acm.org/resources/GraphicsGems/">Graphics Gems</a>.   
+          <li> <i>Overview of Traditional Surface Tracking Methods</i>, Matthias Muller
+               <a href="http://matthias-mueller-fischer.ch/talks/SurfaceTrackingMM.pdf">Surface Tracking</a>.   
           </li>
-          <li> <i>Improved Ray Tagging for Voxel-Based Ray Tracing</i>,
-               D. Kirk &amp; J. Arvo.
-               <a href="http://tog.acm.org/resources/GraphicsGems/">Graphics Gems</a>. II  
+          <li> <i>Simple Fluid Simulation</i>, Philip Rideout
+               <a href="http://prideout.net/blog/?p=58">Fluid Simulation</a>.   
           </li>
+          <li> <i>Practical Animation of Liquids</i>, Nick Foster, Ronald Fedkiw
+               <a href="http://physbam.stanford.edu/~fedkiw/papers/stanford2001-02.pdf">Animation of Liquids</a>.   
+          </li>
+
         </ol>
     </aside>
 </body>
