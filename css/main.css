@@ -10,6 +10,10 @@
     border: 1px solid green;
 }
 
+.inline-image {
+	vertical-align:text-bottom;
+}
+
 .center {
     text-align: center;
 }

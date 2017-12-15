@@ -40,19 +40,21 @@
 		<p>The Navier-Stokes equations are used to describe the motion of fluids. They serve as a direct application of Newton's Second Law to fluids. The two components of Navier-Strokes are the following:  </p>
 
 		<p><b>First Equation:</b><img style="display:inline;margin-left:10px" src="images/navier_1.jpg" max-width="100"/></p> 
+		<p>This equation describes the change in velocity vector over time (acceleration). For this reason, it's usually called the <i>momentum equation</i>. The four terms on the right side are a combination of accelerations, three of which being differential equations that we must solve.
 
 		<p><b>Second Equation:</b><img style="display:inline;margin-left:10px" src="images/navier_2.png" max-width="100"/></p> 
 		<p>The second equation describes the incompressibility condition of the fluid. Examining the equation, it simply states that the divergence of the velocity vector is zero. In other words, the density of the fluid is constant. The purpose of this equation is to ensure that our fluid abides by conservation of mass. Also, the reason we state that the fluid is incompressible is because it provides a good enough approximation of fluids and simplifies the continuity equation. In reality, all fluids are compressible, but they're typically only compressed under extreme conditions (e.g. sonic booms).  
             </li>
 		<p><img style="display:inline;margin-right:10px;" align="middle" src="images/continuity_equation.png" max-width="100"/> <b>simplifies to</b> <img style="display:inline;margin-left:10px" src="images/navier_2.png" max-width="100"/> <b>by assuming that density is constant</b></p>
             <li>
-                <h3>Signed Distance</h3>
-		<p></p>
-            </li>   
-            <li>
                 <h3>Implicit Surface</h3>
 		<p>Marching Cubes is an algorithm</p>
-            </li>
+            </li>            
+            <li>
+                <h3>Level Set</h3>
+		<p></p>
+            </li>   
+
             <li>
                 <h3>Marching Cubes</h3>
 		<p>Marching Cubes is an algorithm to extract a mesh from a scalar field. For the purposes of my fluid simulation, the algorithm is used to create the solid's surface from the signed distance field.</p>  
@@ -79,20 +81,26 @@
             Your browser does not support HTML5 video.
         </video>
 <h3>Part 2: Making Smoke</h3>
-Creating smoke wasn't necessarily required to reach my goals, but I considered a good milestone. By simulating smoke, I received assurance that my fluid sim was mostly correct. To create smoke, all I had to do was create some density field and advect the densities along the velocity field. Then to render the smoke, I use the appropriate density value as the alpha term in fragment shader.
+Creating smoke wasn't necessarily required to reach my goals, but I consider it a good milestone (also it looks really cool). By simulating smoke, I received assurance that my fluid sim was mostly correct. To create smoke, all I had to do was create some density field and advect the densities along the velocity field. Then to render the smoke, I use the appropriate density value as the alpha term in my fragment shader.
         <video class="video" controls>
             <source src="video/smoke" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
 <h3>Part 3: Creating a Surface</h3>
-<p>After implementing smoke, I attempted to achieve a melting effect with just the density field. However, after many trials I couldn't get a good outcome and it
+<p>After implementing smoke, the next step was to boundary around my fluid. Prior to this I attempted to create a melting effect on the density field, but the results were never believable. There are numerous papers describing different methods on how to represent a fluid surface, but my goal for this project was to use the most basic method. The most popular method seems to be a Lagrangian method where particles define the surface. I instead chose a Eulerian surface tracker simply because this allowed me to reuse much of my code from part 1. The method I use is referred to as the "Level Set Method" that uses the signed distance function. For each cell in the simulation grid, I store a distance scalar value. The sign of the distance for a given cell indicates whether the cell is inside or outside the fluid. The (absolute) value of the signed distance describes how far that cell is from the   This is illustrated in the image below: </p>
+
+	<center>
+		<img src="images/signed_dist.png" class="video-table" max-width="180" >
+	</center>
+<p>As you can see, there is no need to keep explicity keep track of the fluids surface. We know if cell is inside the fluid if the distance is negative and outside if it's positive. Furthermore, we know if the surface lies between two cells if their signs differ. With these facts, we have all the information needed to create the liquid/solid. Then to actually render the fluid, I use a basic Marching Cubes algorithm (described in the Background section). To generate a smooth surface I interpolate the distance between cells. There are many optimizations for the Marching Cubes algorithm, but for my purposes a basic version was satisfactory. The results for this part are shown in the following video.</p>
+
         <video class="video" controls>
             <source src="video/marching_cubes" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
 
 <h3>Part 4: "Melting"</h3>
-<p> To simulate heat, I created a simple heat boundary that expands in a uniform radius over time.
+<p> To simulate heat, I created a simple heat boundary that expands in a uniform radius over time. At each cell in the simulation, I store an initial viscosity value. Then for each time step, if a given cell is within the heat boundary its viscosity is decreased by some constant. The viscosity value represent the kinematic viscosity value <i>v</i> used in the diffusion component (<img class="inline-image" style="display:inline;margin-left:5px;margin-right:5px" src="images/viscosity.png" max-width="100"/>) of the Navier-Stokes equation. Therefore as the viscosity lowers, the velocity will be allowed to diffuse more, and thus causing the solid to eventually flow like a liquid. The results of this can be seen in the video below. The correct approach would be to solve the heat equation, and this would not have been a big challenge (very similar to Navier-Stokes equation 1), but I never found the time to implement this.
 </p>
         <video class="video" controls>
             <source src="video/heat" type="video/mp4">
