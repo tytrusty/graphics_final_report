@@ -29,13 +29,22 @@
 			<p>
 			For my final project my goal was to explore fluid simulation and learn how a melting effect could be achieved. After some research, I came across the paper <i>Melting and Flowing</i> [Carlson et al. 2002] describing how you can view solids as highly viscous liquids and vary the viscosity to simulate melting. 
 			</p>
+	<h3>Source Code</h3>
+  <a href="melting.tar.gz" target="_blank">melting.tar.gz</a>
 
         <h2>Background</h2>
         <ul>
             <li>
                 <h3>Navier-Stokes</h3>
-		<p>The Navier-Stokes equations are used to describe the motion of fluids. 
+
+		<p>The Navier-Stokes equations are used to describe the motion of fluids. They serve as a direct application of Newton's Second Law to fluids. The two components of Navier-Strokes are the following:  </p>
+
+		<p><b>First Equation:</b><img style="display:inline;margin-left:10px" src="images/navier_1.jpg" max-width="100"/></p> 
+
+		<p><b>Second Equation:</b><img style="display:inline;margin-left:10px" src="images/navier_2.png" max-width="100"/></p> 
+		<p>The second equation describes the incompressibility condition of the fluid. Examining the equation, it simply states that the divergence of the velocity vector is zero. In other words, the density of the fluid is constant. The purpose of this equation is to ensure that our fluid abides by conservation of mass. Also, the reason we state that the fluid is incompressible is because it provides a good enough approximation of fluids and simplifies the continuity equation. In reality, all fluids are compressible, but they're typically only compressed under extreme conditions (e.g. sonic booms).  
             </li>
+		<p><img style="display:inline;margin-right:10px;" align="middle" src="images/continuity_equation.png" max-width="100"/> <b>simplifies to</b> <img style="display:inline;margin-left:10px" src="images/navier_2.png" max-width="100"/> <b>by assuming that density is constant</b></p>
             <li>
                 <h3>Signed Distance</h3>
 		<p></p>
@@ -54,7 +63,17 @@
         <h2>Results</h2>
 
 <h3>Part 1: Basic Fluid Simulation</h3>
-As mentioned in the description, you can model a solid melting by representing it as a highly viscous solid. 
+<p>As mentioned in the description, you can model a solid melting by representing it as a highly viscous solid.
+</p>
+<p>When creating a fluid simulator, a big decision is whether to model motion with a Langrangian or Eulerian approach. In a Langrangian simulation, fluid is modeled through particles where the path of each particle must be computed individually.  For my purposes I chose an Eulerian approach due to ease of implementation. For particles, you have to manage collisions which was a challenge I didn't want to tackle. Furthermore, Eulerian is easier in that the flow field can be represented by a simple 2D array.
+</p>
+
+<center>
+<img src="images/euler_lang.png" class="video-table" max-width="180" >
+</center>
+
+<p>
+</p>
         <video class="video" controls>
             <source src="video/velocity_field" type="video/mp4">
             Your browser does not support HTML5 video.
@@ -66,6 +85,7 @@ Creating smoke wasn't necessarily required to reach my goals, but I considered a
             Your browser does not support HTML5 video.
         </video>
 <h3>Part 3: Creating a Surface</h3>
+<p>After implementing smoke, I attempted to achieve a melting effect with just the density field. However, after many trials I couldn't get a good outcome and it
         <video class="video" controls>
             <source src="video/marching_cubes" type="video/mp4">
             Your browser does not support HTML5 video.
@@ -114,7 +134,7 @@ Creating smoke wasn't necessarily required to reach my goals, but I considered a
 <p>On top of advecting the signed distance, numerical error also likely contributed to volume loss. In the simulation the acceleration from gravity will always be a constant -9.81. However, the acceleration due to pressure suffers from numerical innacuraccy. This is because an iterative linear solver is used to approximate the pressure. Therefore, at each timestep this error may result in gravity dominating the acceleration from pressure and thus causing volume loss. This effect is illustrated in the image below. 
 </p>
 <center>
-<img src="gravity_pressure.png" class="video-table" max-width="180" >
+<img src="images/gravity_pressure.png" class="video-table" max-width="180" >
 </center>
 <p>Another issue is the lack of dripping when the solid melts. This seems to be a result of my naive heat model as well as volume loss. Had I correctly modeled heat diffusion, heat would travel (like a fluid) through the material, which I believe would solve the problem where the solid justs moves to the right rather than drips down. 
 </p>
