@@ -14,12 +14,22 @@
     text-align: center;
 }
 
+.videoRow {
+	width: 200px; 
+}
+
+.video-container {
+    float: left;
+    display: block;
+    margin-right: 8px;
+	list-style-type: none;
+}
+
 p {
 }
 
 .video { 
-	margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     display: block;
 	width: 400px; 
 }
