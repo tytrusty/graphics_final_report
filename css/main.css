@@ -1,13 +1,5 @@
-#wrapper {
-    width: 500px;
-    border: 1px solid black;
-}
-#first {
-    width: 300px;
-    border: 1px solid red;
-}
-#second {
-    border: 1px solid green;
+.inner {
+	margin-left: 50px;
 }
 
 .inline-image {
@@ -33,7 +25,7 @@
 }
 
 p {
-	line-height: 120%;
+	line-height: 130%;
 }
 
 .video { 
